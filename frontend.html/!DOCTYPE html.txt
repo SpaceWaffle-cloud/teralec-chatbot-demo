@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teralec Chatbot</title>
+<style>
+ body {font-family: Arial, sans-serif; margin:0; background:#f4f7fa;}
+ .chatbox {
+   position: fixed; bottom: 20px; right: 20px;
+   width: 320px; height: 420px;
+   background: white; border-radius: 20px;
+   box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+   overflow: hidden; display: flex; flex-direction: column;
+   animation: swoosh 0.6s ease-out forwards;
+ }
+ @keyframes swoosh {
+   from {transform: translateY(120%) scale(0.6); opacity: 0;}
+   to {transform: translateY(0) scale(1); opacity: 1;}
+ }
+ .chat-header {
+   background: #0077ff; color: white; padding: 12px;
+   text-align: center; font-size: 18px; font-weight: bold;
+ }
+ .messages {flex:1; padding:10px; overflow-y:auto;}
+ .input-area {display:flex; border-top:1px solid #ddd;}
+ input {flex:1; padding:10px; border:none; outline:none;}
+ button {
+   background:#0077ff; color:white; border:none;
+   padding:10px 15px; cursor:pointer; border-radius:0 0 20px 0;
+ }
+ .bot, .user {margin:8px 0;}
+ .bot {color:#0077ff;}
+ .user {text-align:right;}
+</style>
+</head>
+<body>
+<div class="chatbox" id="chatbox">
+<div class="chat-header">💬 Hi! I’m <b>Tera</b> — how can I help you?</div>
+<div class="messages" id="messages">
+<div class="bot">Tera: Hi! I’m Tera — your Teralec assistant 🚀 How can I help you today?</div>
+</div>
+<div class="input-area">
+<input type="text" id="userInput" placeholder="Type a message...">
+<button onclick="sendMessage()">Send</button>
+</div>
+</div>
+<script>
+const API_URL = "http://127.0.0.1:5000/chat"; // replace later with Render URL
+function addMessage(sender, text) {
+ const messages = document.getElementById('messages');
+ const div = document.createElement('div');
+ div.className = sender;
+ div.textContent = `${sender === 'user' ? 'You' : 'Tera'}: ${text}`;
+ messages.appendChild(div);
+ messages.scrollTop = messages.scrollHeight;
+}
+function sendMessage() {
+ const input = document.getElementById('userInput');
+ const message = input.value.trim();
+ if (!message) return;
+ addMessage('user', message);
+ input.value = '';
+ fetch(API_URL, {
+   method: 'POST',
+   headers: {'Content-Type': 'application/json'},
+   body: JSON.stringify({message})
+ })
+ .then(res => res.json())
+ .then(data => addMessage('bot', data.response))
+ .catch(() => addMessage('bot', "Oops! You made me short circuit 😅"));
+}
+</script>
+</body>
+</html>
